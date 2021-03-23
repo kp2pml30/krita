@@ -70,6 +70,7 @@ KoShape::SharedData::SharedData()
     , keepAspect(false)
     , selectable(true)
     , protectContent(false)
+    , pixelated(false)
     , textRunAroundSide(KoShape::BiggestRunAroundSide)
     , textRunAroundDistanceLeft(0.0)
     , textRunAroundDistanceTop(0.0)
@@ -107,6 +108,7 @@ KoShape::SharedData::SharedData(const SharedData &rhs)
     , keepAspect(rhs.keepAspect)
     , selectable(rhs.selectable)
     , protectContent(rhs.protectContent)
+    , pixelated(rhs.pixelated)
 
     , textRunAroundSide(rhs.textRunAroundSide)
     , textRunAroundDistanceLeft(rhs.textRunAroundDistanceLeft)
@@ -625,6 +627,16 @@ QPainterPath KoShape::shadowOutline() const
     }
 
     return QPainterPath();
+}
+
+
+bool KoShape::pixelated() const noexcept
+{
+  return s->pixelated;
+}
+void KoShape::setPixelated(bool state) noexcept
+{
+  s->pixelated = state;
 }
 
 QPointF KoShape::absolutePosition(KoFlake::AnchorPosition anchor) const

@@ -1888,6 +1888,8 @@ QList<KoShape*> SvgParser::parseSingleElement(const KoXmlElement &b, DeferredUse
                b.tagName() == "path" ||
                b.tagName() == "image") {
         KoShape *shape = createObjectDirect(b);
+        /// TODO
+        shape->setPixelated(true);
 
         if (shape) {
             if (!shape->outlineRect().isNull() || !shape->boundingRect().isNull()) {
@@ -1989,6 +1991,9 @@ KoShape * SvgParser::createPath(const KoXmlElement &element)
             obj = path;
         }
     }
+    if (obj != nullptr) {
+        obj->setPixelated(element.attribute("krita:pixelated") == "true");
+    }
 
     return obj;
 }
@@ -2012,6 +2017,11 @@ KoShape * SvgParser::createObjectDirect(const KoXmlElement &b)
 
     m_context.popGraphicsContext();
 
+
+    if (obj != nullptr) {
+        obj->setPixelated(b.attribute("krita:pixelated") == "true");
+    }
+
     return obj;
 }
 
@@ -2034,6 +2044,11 @@ KoShape * SvgParser::createObject(const KoXmlElement &b, const SvgStyles &style)
     }
 
     m_context.popGraphicsContext();
+
+
+    if (obj != nullptr) {
+        obj->setPixelated(b.attribute("krita:pixelated") == "true");
+    }
 
     return obj;
 }

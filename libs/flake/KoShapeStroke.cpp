@@ -73,15 +73,31 @@ QPair<qreal, qreal> anglesForSegment(KoPathSegment segment) {
     return qMakePair(angle1, angle2);
 }
 }
-
 void KoShapeStroke::Private::paintBorder(const KoShape *shape, QPainter &painter, const QPen &pen) const
 {
     if (!pen.isCosmetic() && pen.style() != Qt::NoPen) {
         const KoPathShape *pathShape = dynamic_cast<const KoPathShape *>(shape);
         if (pathShape) {
-            QPainterPath path = pathShape->pathStroke(pen);
+            if (shape->pixelated()) {
+                painter.save();
+                painter.setRenderHint(QPainter::RenderHint::Antialiasing, false);
+                auto path = pathShape->outline();
+                if (pen.width() == 1) {
+                    QPen copy = pen;
+                    copy.setWidth(0);
+                    painter.setPen(copy);
+                } else {
+                    painter.setPen(pen);
+                }
+                auto transform = painter.transform();
+                painter.resetTransform();
+                painter.drawPath(path * transform);
+                painter.restore();
+            } else {
+                QPainterPath path = pathShape->pathStroke(pen);
+                painter.fillPath(path, pen.brush());
+            }
 
-            painter.fillPath(path, pen.brush());
 
             if (!pathShape->hasMarkers()) return;
 

@@ -224,6 +224,7 @@ void SvgWriter::savePath(KoPathShape *path, SvgSavingContext &context)
 {
     context.shapeWriter().startElement("path");
     context.shapeWriter().addAttribute("id", context.getID(path));
+    context.shapeWriter().addAttribute("krita:pixelated", path->pixelated() ? "true" : "false");
 
     SvgUtil::writeTransformAttributeLazy("transform", path->transformation(), context.shapeWriter());
 
@@ -263,6 +264,8 @@ void SvgWriter::saveGeneric(KoShape *shape, SvgSavingContext &context)
 
     QPainter svgPainter;
     svgPainter.begin(&svgGenerator);
+    // currently impossible:
+    // context.shapeWriter().addAttribute("krita:pixelated", shape->pixelated() ? "true" : "false");
     painter.paint(svgPainter, SvgUtil::toUserSpace(bbox).toRect(), bbox);
     svgPainter.end();
 

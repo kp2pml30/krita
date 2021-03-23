@@ -773,6 +773,9 @@ public:
      */
     void setAbsolutePosition(const QPointF &newPosition, KoFlake::AnchorPosition anchor = KoFlake::Center);
 
+    bool pixelated() const noexcept;
+    void setPixelated(bool state) noexcept;
+
     /**
      * Set a data object on the shape to be used by an application.
      * This is specifically useful when a shape is created in a plugin and that data from that

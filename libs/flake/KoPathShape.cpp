@@ -115,7 +115,15 @@ void KoPathShape::paint(QPainter &painter, KoShapePaintingContext &paintContext)
     path.setFillRule(d->fillRule);
 
     if (background()) {
+        if (pixelated()) {
+            painter.save();
+            path = path * painter.transform();
+            painter.resetTransform();
+            painter.setRenderHint(QPainter::RenderHint::Antialiasing, false);
+        }
         background()->paint(painter, paintContext, path);
+        if (pixelated())
+            painter.restore();
     }
     //d->paintDebug(painter);
 }

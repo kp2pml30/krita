@@ -61,6 +61,7 @@ public:
     int keepAspect : 1;
     int selectable : 1;
     int protectContent : 1;
+    int pixelated : 1;
 
     KoShape::TextRunAroundSide textRunAroundSide;
     qreal textRunAroundDistanceLeft;

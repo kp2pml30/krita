@@ -43,6 +43,45 @@
 #include "kis_signal_compressor.h"
 #include "kis_signals_blocker.h"
 
+#include <iostream>
+
+namespace
+{
+    class PixelatedCommand : public KUndo2Command
+    {
+    private:
+        QList<KoShape*> shapes;
+        std::map<KoShape*, bool> previousStates;
+        bool newState;
+    public:
+        PixelatedCommand(const QList<KoShape*> &shaps, bool newState, KUndo2Command* parent = nullptr)
+            : KUndo2Command(kundo2_i18n("pixelated change"), parent)
+            , shapes(shaps)
+            , newState(newState)
+        {
+            Q_FOREACH (KoShape *shape, shapes) {
+                previousStates[shape] = shape->pixelated();
+            }
+        }
+
+        void redo() override
+        {
+            KUndo2Command::redo();
+            Q_FOREACH (KoShape *shape, shapes) {
+                shape->setPixelated(newState);
+                shape->update();
+            }
+        }
+        void undo() override
+        {
+            KUndo2Command::undo();
+            Q_FOREACH (KoShape *shape, shapes) {
+                shape->setPixelated(previousStates[shape]);
+                shape->update();
+            }
+        }
+    };
+}
 
 DefaultToolGeometryWidget::DefaultToolGeometryWidget(KoInteractionTool *tool, QWidget *parent)
     : QWidget(parent)
@@ -74,6 +113,12 @@ DefaultToolGeometryWidget::DefaultToolGeometryWidget(KoInteractionTool *tool, QW
 
     connect(chkGlobalCoordinates, SIGNAL(toggled(bool)), SLOT(slotUpdateSizeBoxes()));
     connect(chkGlobalCoordinates, SIGNAL(toggled(bool)), SLOT(slotUpdateAspectButton()));
+
+    connect(chkPixelated, &QCheckBox::toggled, [this](bool newValue) {
+        KoSelection *selection = m_tool->canvas()->selectedShapesProxy()->selection();
+        QList<KoShape*> shapes = selection->selectedEditableShapes();
+        m_tool->canvas()->addCommand(new PixelatedCommand(shapes, newValue));
+    });
 
 
     /**
@@ -303,6 +348,14 @@ void DefaultToolGeometryWidget::slotUpdateSizeBoxes(bool updateAspect)
 
     KoSelection *selection = m_tool->canvas()->selectedShapesProxy()->selection();
     const QRectF bounds = calculateSelectionBounds(selection, anchor, useGlobalSize);
+
+
+    QList<KoShape*> shapes = selection->selectedEditableShapes();
+    bool newPix = false;
+    if (shapes.size() == 1) {
+        newPix = shapes[0]->pixelated();
+    }
+    chkPixelated->setChecked(newPix);
 
     const bool hasSizeConfiguration = !bounds.isNull();
 

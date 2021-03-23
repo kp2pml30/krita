@@ -1,4 +1,6 @@
 compile_commands.json
+.clangd
+CMakeFiles
 *.orig
 *.rej
 __pycache__
